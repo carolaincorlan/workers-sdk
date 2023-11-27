@@ -52,7 +52,7 @@ import {
 	convertModuleDefinition,
 	withSourceURL,
 } from "./modules";
-import { ServiceDesignatorSchema } from "./services";
+import { ServiceDesignatorSchema, ServiceFetchSchema } from "./services";
 
 // `workerd`'s `trustBrowserCas` should probably be named `trustSystemCas`.
 // Rather than using a bundled CA store like Node, it uses
@@ -118,6 +118,7 @@ const CoreOptionsSchemaInput = z.intersection(
 		unsafeDirectPort: z.number().optional(),
 
 		unsafeEvalBinding: z.string().optional(),
+		unsafeUseModuleFallbackService: z.boolean().optional(),
 	})
 );
 export const CoreOptionsSchema = CoreOptionsSchemaInput.transform((value) => {
@@ -157,6 +158,8 @@ export const CoreSharedOptionsSchema = z.object({
 	cf: z.union([z.boolean(), z.string(), z.record(z.any())]).optional(),
 
 	liveReload: z.boolean().optional(),
+
+	unsafeModuleFallbackService: ServiceFetchSchema.optional(),
 });
 
 export const CORE_PLUGIN_NAME = "core";
@@ -423,11 +426,13 @@ export const CORE_PLUGIN: Plugin<
 	async getServices({
 		log,
 		options,
+		sharedOptions,
 		workerBindings,
 		workerIndex,
 		wrappedBindingNames,
 		durableObjectClassNames,
 		additionalModules,
+		loopbackPort,
 	}) {
 		// Define regular user worker
 		const additionalModuleNames = additionalModules.map(({ name }) => name);
@@ -569,6 +574,11 @@ export const CORE_PLUGIN: Plugin<
 									options.outboundService
 							  ),
 					cacheApiOutbound: { name: getCacheServiceName(workerIndex) },
+					moduleFallback:
+						options.unsafeUseModuleFallbackService &&
+						sharedOptions.unsafeModuleFallbackService !== undefined
+							? `localhost:${loopbackPort}`
+							: undefined,
 				},
 			});
 		}
