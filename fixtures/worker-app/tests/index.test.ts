@@ -31,6 +31,7 @@ describe("'wrangler dev' correctly renders pages", () => {
 		expect(output).toContain("request log");
 
 		// Check logged strings are source mapped
+		console.log(output);
 		expect(output).toMatch(
 			/Error: logged error one.+fixtures\/worker-app\/src\/log.ts:7:14/s
 		);
