@@ -115,6 +115,7 @@ export class RunnerObject implements DurableObject {
 			// method we know is called to get the singleton. :see_no_evil:
 			// TODO(soon): see if we can get `startViteNode()` (https://github.com/vitest-dev/vitest/blob/8d183da4f7cc2986d11c802d16bacd221fb69b96/packages/vitest/src/runtime/execute.ts#L45)
 			//  exported in `vitest/execute` (https://github.com/vitest-dev/vitest/blob/main/packages/vitest/src/public/execute.ts)
+			// TODO(soon): we should be able to get this from a custom Vitest runner
 			const { VitestExecutor } = await import("vitest/execute");
 			const originalResolveUrl = VitestExecutor.prototype.resolveUrl;
 			// eslint-disable-next-line @typescript-eslint/no-this-alias

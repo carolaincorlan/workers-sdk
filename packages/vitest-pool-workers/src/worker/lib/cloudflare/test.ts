@@ -1,5 +1,6 @@
 export {
 	env,
+	fetchMock,
 	getDurableObjectInstance,
 	runWithDurableObjectContext,
 	runDurableObjectAlarm,
