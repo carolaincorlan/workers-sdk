@@ -1048,6 +1048,9 @@ importers:
       '@vitest/runner':
         specifier: 1.0.0-beta.5
         version: 1.0.0-beta.5
+      '@vitest/snapshot':
+        specifier: 1.0.0-beta.5
+        version: 1.0.0-beta.5
       birpc:
         specifier: 0.2.14
         version: 0.2.14
