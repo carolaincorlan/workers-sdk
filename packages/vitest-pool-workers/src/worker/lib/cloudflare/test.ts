@@ -1,4 +1,6 @@
-export let env: Record<string, unknown>;
-export function _setEnv(newEnv: Record<string, unknown>) {
-	env = newEnv;
-}
+export {
+	env,
+	getDurableObjectInstance,
+	runWithDurableObjectContext,
+	runDurableObjectAlarm,
+} from "cloudflare:test-internal";
