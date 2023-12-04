@@ -5,7 +5,14 @@ import path from "node:path";
 import util from "node:util";
 import { createBirpc } from "birpc";
 import * as devalue from "devalue";
-import { Log, LogLevel, Miniflare, WebSocket } from "miniflare";
+import {
+	Log,
+	LogLevel,
+	Miniflare,
+	WebSocket,
+	structuredSerializableReducers,
+	structuredSerializableRevivers,
+} from "miniflare";
 import { createMethodsRPC } from "vitest/node";
 import { OPTIONS_PATH, parseProjectOptions } from "./config";
 import { handleLoopbackRequest } from "./loopback";
@@ -34,6 +41,13 @@ function groupBy<K, V>(
 		group.push(value);
 	}
 	return result;
+}
+
+function structuredSerializableStringify(value: unknown): string {
+	return devalue.stringify(value, structuredSerializableReducers);
+}
+function structuredSerializableParse(value: string): unknown {
+	return devalue.parse(value, structuredSerializableRevivers);
 }
 
 // TODO(now): consider consolidating these logs?
@@ -365,7 +379,7 @@ async function runTests(
 	const res = await stub.fetch("http://placeholder", {
 		headers: {
 			Upgrade: "websocket",
-			"MF-Vitest-Worker-Data": devalue.stringify({
+			"MF-Vitest-Worker-Data": structuredSerializableStringify({
 				filePath: ctx.projectFiles.workerPath,
 				name: "run",
 				data,
@@ -390,7 +404,7 @@ async function runTests(
 		post(value) {
 			if (webSocket.readyState === WebSocket.READY_STATE_OPEN) {
 				debuglog("Pool sending message to worker...", value);
-				webSocket.send(devalue.stringify(value));
+				webSocket.send(structuredSerializableStringify(value));
 			} else {
 				debuglog("Pool tried to send message to worker but closed...", value);
 			}
@@ -399,7 +413,7 @@ async function runTests(
 			webSocket.addEventListener("message", (event) => {
 				assert(typeof event.data === "string");
 				debuglog("Pool received message from worker...", event.data);
-				listener(devalue.parse(event.data));
+				listener(structuredSerializableParse(event.data));
 			});
 		},
 	});
